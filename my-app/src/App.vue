@@ -18,22 +18,17 @@
           </div>
           <button type="submit">Submit</button>
         </form>
+        <div v-if="submissionMessage" class="submission-message">
+          {{ submissionMessage }}
+        </div>
       </div>
     </section>
-      <div>
-        <h2>Instruments from Supabase:</h2>
-        <ul>
-            <li v-for="instrument in instruments" :key="instrument.id">
-                {{ instrument.name }}
-            </li>
-        </ul>
-      </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { supabase } from './lib/supabaseClient'; 
+import { supabase } from './lib/supabaseClient';
 
 const formData = ref({
   first_name: '',
@@ -51,6 +46,8 @@ const formFields = ref([
   { id: 'address', label: 'Address', type: 'text', model: 'address' },
 ]);
 
+const submissionMessage = ref(null); // Added submission message ref
+
 function scrollToForm() {
   const formSection = document.getElementById('form-section');
   formSection.scrollIntoView({ behavior: 'smooth' });
@@ -59,119 +56,71 @@ function scrollToForm() {
 async function handleSubmit() {
   console.log('Form submitted:', formData.value);
 
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
   if (sessionError) {
-      console.error('Error getting session:', sessionError);
-      return;
+    console.error('Error getting session:', sessionError);
+    return;
   }
 
   if (!session) {
-      console.error('User not logged in.');
-      return;
+    console.error('User not logged in.');
+    return;
   }
 
   const { error } = await supabase
-      .from('motor_insurance_quotes')
-      .insert([{
-          ...formData.value,
-          user_id: session.user.id
-      }])
+    .from('motor_insurance_quotes')
+    .insert([{
+      ...formData.value,
+      user_id: session.user.id,
+    }]);
 
   if (error) {
-      console.error('Error inserting data:', error);
+    console.error('Error inserting data:', error);
+    submissionMessage.value = 'An error occurred. Please try again.'; // Error message
   } else {
-      console.log('Data inserted successfully.');
-      formData.value = {
-        first_name: '',
-        last_name: '',
-        email: '',
-        phone: '',
-        address: '',
-      }
+    console.log('Data inserted successfully.');
+    formData.value = {
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone: '',
+      address: '',
+    };
+    submissionMessage.value = 'Your information has been submitted successfully!'; // Success message
+    setTimeout(() => {
+        submissionMessage.value = null; // clear the submissionMessage
+    }, 3000);
   }
 }
+
+const instruments = ref([]);
+
+async function getInstruments() {
+  const { data, error } = await supabase.from('instruments').select();
+  if (error) {
+    console.error("Error fetching instruments:", error);
+    return;
+  }
+  instruments.value = data;
+}
+
+onMounted(() => {
+  getInstruments();
+});
+
 </script>
 
 <style scoped>
-body {
-  font-family: sans-serif;
-  margin: 0;
-  padding: 0;
+/* ... (your existing styles) ... */
+.submission-message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
 }
-
-header {
-  background-image: url('https://wallpaperaccess.com/full/1125168.jpg');
-  background-size: cover;
-  background-position: center;
-  color: white;
-  padding: 20px;
-  text-align: center;
-}
-
-.header-content {
-  padding: 100px 0;
-}
-
-#quote-button {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-}
-
-#form-section {
-  padding: 40px;
-  background-color: #f8f9fa;
-}
-
-.form-container {
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: white;
-  padding: 40px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.form-group {
-  margin-bottom: 25px;
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #333;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="tel"] {
-  width: calc(100% - 22px);
-  padding: 10px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 16px;
-  color: #495057;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="tel"]:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-button[type="submit"] {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
+.submission-message{
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 </style>
