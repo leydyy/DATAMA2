@@ -87,11 +87,8 @@ export default {
           .insert([this.personalData])
           .select();
 
-        if (personalError) {
-          console.error('Personal Insert Error:', personalError);
-          throw personalError;
-        }
-
+        if (personalError) throw personalError;
+        if (!personalData || personalData.length === 0) throw new Error('No personal data returned.');
 
         const userId = personalData[0].id;
 
@@ -125,7 +122,7 @@ export default {
 
       } catch (error) {
         console.error('Submission error:', error);
-        this.submissionMessage = 'Failed to submit the form. Please try again.';
+        this.submissionMessage = `Failed to submit the form: ${error.message}`;
       }
     }
   }
