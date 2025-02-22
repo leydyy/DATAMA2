@@ -56,28 +56,44 @@ export default {
 
     // 🔥 Updated handleSubmit with Supabase logic
     async handleSubmit() {
-      console.log('Form submitted:', this.formData);
+  console.log('Form submitted:', this.formData);
 
-      const { data, error } = await supabase
-        .from('motor_insurance_quotes') // Ensure the table exists in Supabase
-        .insert([this.formData]);
+  // 🔍 Fetch authenticated user
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error('Error inserting data:', error);
-        alert('Failed to submit the form. Please try again.');
-      } else {
-        console.log('Data inserted successfully:', data);
-        alert('Your information has been submitted successfully!');
-        // Reset form
-        this.formData = {
-          first_name: '',
-          last_name: '',
-          email: '',
-          phone: '',
-          address: ''
-        };
-      }
-    }
+  if (userError || !user) {
+    console.error('Error fetching user:', userError);
+    alert('Please log in before submitting.');
+    return;
+  }
+
+  console.log('Authenticated User:', user);
+
+  // Insert data with user_id
+  const { data, error } = await supabase
+    .from('motor_insurance_quotes')
+    .insert([{
+      ...this.formData,
+      user_id: user.id // Attach the user ID
+    }]);
+
+  if (error) {
+    console.error('Error inserting data:', error);
+    alert('Failed to submit the form. Please try again.');
+  } else {
+    console.log('Data inserted successfully:', data);
+    alert('Your information has been submitted successfully!');
+    // Reset form
+    this.formData = {
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone: '',
+      address: ''
+    };
+  }
+}
+
   }
 };
 </script>
