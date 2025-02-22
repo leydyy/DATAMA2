@@ -33,22 +33,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { supabase } from './lib/supabaseClient'; // Adjust the path as needed
-
-const instruments = ref([]);
-
-async function getInstruments() {
-  const { data, error } = await supabase.from('instruments').select();
-  if (error) {
-    console.error("Error fetching instruments:", error);
-    return;
-  }
-  instruments.value = data;
-}
-
-onMounted(() => {
-  getInstruments();
-});
+import { supabase } from './lib/supabaseClient'; 
 
 const formData = ref({
   firstName: '',
@@ -59,8 +44,8 @@ const formData = ref({
 });
 
 const formFields = ref([
-  { id: 'firstName', label: 'First Name', type: 'text', model: 'firstName' },
-  { id: 'lastName', label: 'Last Name', type: 'text', model: 'lastName' },
+  { id: 'first_name', label: 'First Name', type: 'text', model: 'first_name' },
+  { id: 'last_name', label: 'Last Name', type: 'text', model: 'last_name' },
   { id: 'email', label: 'Email', type: 'email', model: 'email' },
   { id: 'phone', label: 'Phone Number', type: 'tel', model: 'phone' },
   { id: 'address', label: 'Address', type: 'text', model: 'address' },
