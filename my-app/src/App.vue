@@ -36,8 +36,8 @@ import { ref, onMounted } from 'vue';
 import { supabase } from './lib/supabaseClient'; 
 
 const formData = ref({
-  firstName: '',
-  lastName: '',
+  first_name: '',
+  last_name: '',
   email: '',
   phone: '',
   address: '',
@@ -83,8 +83,8 @@ async function handleSubmit() {
   } else {
       console.log('Data inserted successfully.');
       formData.value = {
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         email: '',
         phone: '',
         address: '',
