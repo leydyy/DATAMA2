@@ -46,7 +46,7 @@ const formFields = ref([
   { id: 'address', label: 'Address', type: 'text', model: 'address' },
 ]);
 
-const submissionMessage = ref(null); // Added submission message ref
+const submissionMessage = ref(null); 
 
 function scrollToForm() {
   const formSection = document.getElementById('form-section');
