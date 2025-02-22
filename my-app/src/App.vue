@@ -33,15 +33,15 @@ export default {
   data() {
     return {
       formData: {
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         email: '',
         phone: '',
         address: ''
       },
       formFields: [
-        { id: 'firstName', label: 'First Name', type: 'text', model: 'firstName' },
-        { id: 'lastName', label: 'Last Name', type: 'text', model: 'lastName' },
+        { id: 'first_name', label: 'First Name', type: 'text', model: 'first_name' },
+        { id: 'last_name', label: 'Last Name', type: 'text', model: 'last_name' },
         { id: 'email', label: 'Email', type: 'email', model: 'email' },
         { id: 'phone', label: 'Phone Number', type: 'tel', model: 'phone' },
         { id: 'address', label: 'Address', type: 'text', model: 'address' }
@@ -70,8 +70,8 @@ export default {
         alert('Your information has been submitted successfully!');
         // Reset form
         this.formData = {
-          firstName: '',
-          lastName: '',
+          first_name: '',
+          last_name: '',
           email: '',
           phone: '',
           address: ''
