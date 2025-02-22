@@ -87,7 +87,11 @@ export default {
           .insert([this.personalData])
           .select();
 
-        if (personalError) throw personalError;
+        if (personalError) {
+          console.error('Personal Insert Error:', personalError);
+          throw personalError;
+        }
+
 
         const userId = personalData[0].id;
 
