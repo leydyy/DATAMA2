@@ -38,36 +38,42 @@ export default {
         { id: 'variant', label: 'Variant', type: 'text', model: 'variant' },
         { id: 'plate_num', label: 'Plate Number', type: 'text', model: 'plate_num' },
         { id: 'vehicle_value', label: 'Vehicle Value', type: 'text', model: 'vehicle_value' }
-      ]
+      ],
+      submissionMessage: '' // ✅ Ensure this is defined
     };
   },
 
-  async handleSubmit() {
-    console.log('Form submitted:', this.formData);
-  
-    // 🔥 Insert data directly without requiring authentication
-    const { data, error } = await supabase
-      .from('motorcar_motorcar_info')
-      .insert([this.formData]);
-  
-    if (error) {
-      console.error('Error inserting data:', error);
-      alert('Failed to submit the form. Please try again.');
-    } else {
-      console.log('Data inserted successfully:', data);
-      alert('Your information has been submitted successfully!');
-      // Reset form
-      this.formData = {
-        first_name: '',
-        last_name: '',
-        email: '',
-        phone: '',
-        address: ''
-      };
+  // ✅ Wrap handleSubmit inside methods
+  methods: {
+    async handleSubmit() {
+      console.log('Form submitted:', this.formData); // Check if this logs
+
+      const { data, error } = await supabase
+        .from('motorcar_motorcar_info')
+        .insert([this.formData]);
+
+      console.log('Supabase data:', data);
+      console.log('Supabase error:', error);
+
+      if (error) {
+        this.submissionMessage = '❌ Failed to submit the form. Please try again.';
+      } else {
+        this.submissionMessage = '✅ Your information has been submitted successfully!';
+        // Reset form
+        this.formData = {
+          year_model: '',
+          brand: '',
+          model: '',
+          variant: '',
+          plate_num: '',
+          vehicle_value: ''
+        };
+      }
     }
   }
 };
 </script>
+
 
 <style scoped>
 body {
