@@ -43,6 +43,10 @@
         <div class="col-lg-8">
           <h2>Services we offer</h2>
           <p class="lead">Protect your home and everything you love...</p>
+            <div>
+                <router-link to="/Motorcar">Motorcar</router-link>
+                <router-view></router-view>
+            </div>
           <a href="fire.html"><button class="custom-button fire-btn">Fire Insurance</button></a>
           <a href="motorcar.html"><button class="custom-button motorcar-btn">Motorcar Insurance</button></a>
         </div>
@@ -72,17 +76,6 @@ export default {
 
 <style>
 @charset "UTF-8";
-/*!
-* Start Bootstrap - Scrolling Nav v5.0.6 (https://startbootstrap.com/template/scrolling-nav)
-* Copyright 2013-2023 Start Bootstrap
-* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-scrolling-nav/blob/master/LICENSE)
-*/
-/*!
- * Bootstrap  v5.2.3 (https://getbootstrap.com/)
- * Copyright 2011-2022 The Bootstrap Authors
- * Copyright 2011-2022 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
- */
 :root {
   --bs-blue: #0d6efd;
   --bs-indigo: #6610f2;
