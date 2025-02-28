@@ -4,17 +4,22 @@
       <h1>DRIVE WITH CONFIDENCE,<br />INSURE WITH US!</h1>
       <form @submit.prevent="handleSubmit">
         <h2>Motor Car Information</h2>
+
         <div class="form-group" v-for="field in formFields" :key="field.id">
           <label :for="field.id">{{ field.label }}</label>
           <input
             :type="field.type"
             :id="field.id"
             v-model="formData[field.model]"
+            @input="validateInput(field.model)"
             required
           />
+          <small v-if="errors[field.model]" class="error">{{ errors[field.model] }}</small>
         </div>
-        <button type="submit">Submit</button>
+
+        <button type="submit" :disabled="hasErrors">Submit</button>
       </form>
+
       <div v-if="submissionMessage" class="submission-message">
         {{ submissionMessage }}
       </div>
@@ -23,13 +28,13 @@
 </template>
 
 <script>
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import supabase from "@/supabase";
 
 export default {
   data() {
     return {
+      clientId: null,
       formData: {
         year_model: "",
         brand: "",
@@ -37,7 +42,7 @@ export default {
         engine_cc: "",
         engine_num: "",
         chassis_num: "",
-        plate_num: "",  // ✅ Added missing field
+        plate_num: "",
         color: "",
         seating_capacity: "",
         mortgage: ""
@@ -54,56 +59,111 @@ export default {
         { id: "seating_capacity", label: "Seating Capacity", type: "text", model: "seating_capacity" },
         { id: "mortgage", label: "Mortgage", type: "text", model: "mortgage" },
       ],
-      submissionMessage: "",
+      errors: {},
+      submissionMessage: ""
     };
   },
 
-  methods: {
-    async handleSubmit() {
-      console.log("Form Data Before Validation:", this.formData); // Debugging log
+  computed: {
+    hasErrors() {
+      return Object.keys(this.errors).length > 0;
+    }
+  },
 
-      // Get client_id from query params (assuming it's passed from the previous form)
-      const clientId = this.$route.query.motorcar_id;
-      
-      if (!clientId) {
-          console.error("❌ Missing client_id. Cannot insert data.");
-          this.submissionMessage = "❌ Error: Missing client ID.";
-          return;
+  created() {
+    const route = useRoute();
+    this.clientId = route.query.client_id;
+
+    if (!this.clientId) {
+      console.error("❌ Missing client_id in Motorcar.vue");
+      alert("Error: Missing client_id. Please go back and try again.");
+    } else {
+      console.log("✅ Received client_id in Motorcar.vue:", this.clientId);
+    }
+  },
+
+  methods: {
+    validateInput(field) {
+      const value = this.formData[field];
+
+      if (field === "year_model") {
+        if (!/^\d{4}$/.test(value) || value < 1904 || value > 2025) {
+          this.errors[field] = "Year must be between 1904 and 2025 (4 digits).";
+        } else {
+          delete this.errors[field];
+        }
+      } else if (["brand", "model", "color"].includes(field)) {
+        if (!/^[A-Za-z ]+$/.test(value)) {
+          this.errors[field] = "Only letters and spaces allowed.";
+        } else {
+          delete this.errors[field];
+        }
+      } else if (field === "plate_num") {
+        if (!/^[A-Za-z0-9]{7}$/.test(value)) {
+          this.errors[field] = "Plate number must be exactly 7 characters.";
+        } else {
+          delete this.errors[field];
+        }
+      } else if (field === "seating_capacity") {
+        if (!/^\d+$/.test(value)) {
+          this.errors[field] = "Only numbers allowed.";
+        } else {
+          delete this.errors[field];
+        }
+      } else if (field === "mortgage") {
+        if (!/^\d{1,9}(\.\d{1,2})?$/.test(value)) {
+          this.errors[field] = "Max 9 digits, up to 2 decimal places.";
+        } else {
+          delete this.errors[field];
+        }
+      }
+    },
+
+    async handleSubmit() {
+      if (this.hasErrors) {
+        this.submissionMessage = "❌ Please correct the errors before submitting.";
+        return;
       }
 
-      // Attach client_id to form data
-      const submissionData = { ...this.formData, client_id: clientId };
+      console.log("🚀 Submitting Data:", this.formData);
+
+      if (!this.clientId) {
+        console.error("❌ Missing client_id. Cannot insert data.");
+        this.submissionMessage = "❌ Error: Missing client ID.";
+        return;
+      }
+
+      const submissionData = { ...this.formData, client_id: this.clientId };
 
       console.log("Submitting data:", submissionData);
 
       const { data, error } = await supabase
-          .from("motorcar_motorcar_info")  // ✅ Correct table name
-          .insert([submissionData]);
+        .from("motorcar_motorcar_info")
+        .insert([submissionData]);
 
       if (error) {
-          console.error("❌ Error inserting data:", error);
-          alert(`Submission Error: ${error.message}`);
-          this.submissionMessage = "❌ Failed to submit the form.";
+        console.error("❌ Error inserting data:", error);
+        alert(`Submission Error: ${error.message}`);
+        this.submissionMessage = "❌ Failed to submit the form.";
       } else {
-          console.log("✅ Data inserted successfully:", data);
-          this.submissionMessage = "✅ Your information has been submitted successfully!";
-          
-          // Reset form
-          this.formData = {
-              year_model: "",
-              brand: "",
-              model: "",
-              engine_cc: "",
-              engine_num: "",
-              chassis_num: "",
-              plate_num: "",
-              color: "",
-              seating_capacity: "",
-              mortgage: "",
-          };
+        console.log("✅ Data inserted successfully:", data);
+        this.submissionMessage = "✅ Your information has been submitted successfully!";
+
+        this.formData = {
+          year_model: "",
+          brand: "",
+          model: "",
+          engine_cc: "",
+          engine_num: "",
+          chassis_num: "",
+          plate_num: "",
+          color: "",
+          seating_capacity: "",
+          mortgage: ""
+        };
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -114,6 +174,16 @@ body {
   padding: 0;
 }
 
+.error {
+  color: red;
+  font-size: 14px;
+}
+
+button:disabled {
+  background-color: gray;
+  cursor: not-allowed;
+}
+
 header {
   background-image: url("https://wallpaperaccess.com/full/1125168.jpg");
   background-size: cover;
@@ -121,18 +191,6 @@ header {
   color: white;
   padding: 20px;
   text-align: center;
-}
-
-.header-content {
-  padding: 100px 0;
-}
-
-#quote-button {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
 }
 
 #form-section {
@@ -160,25 +218,13 @@ label {
   color: #333;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="tel"] {
+input {
   width: calc(100% - 22px);
   padding: 10px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   box-sizing: border-box;
   font-size: 16px;
-  color: #495057;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="tel"]:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 button[type="submit"] {
@@ -193,9 +239,6 @@ button[type="submit"] {
   margin-top: 10px;
   padding: 10px;
   border-radius: 5px;
-}
-
-.submission-message {
   background-color: #d4edda;
   color: #155724;
   border: 1px solid #c3e6cb;
