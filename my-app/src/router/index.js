@@ -4,10 +4,9 @@ import Clients from '@/views/Clients.vue';
 import Motorcar from '@/views/Motorcar.vue';
 
 const routes = [
-  { path: '/', component: Home },
-  { path: '/clients', component: Clients },
-  { path: '/motorcar', component: Motorcar },
-
+  { path: '/', name: 'Home', component: Home },
+  { path: '/clients', name: 'Clients', component: Clients },
+  { path: '/motorcar', name: 'Motorcar', component: Motorcar }, // ✅ Added route name
 ];
 
 const router = createRouter({

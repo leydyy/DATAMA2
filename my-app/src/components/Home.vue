@@ -58,10 +58,14 @@
 </template>
 
 <script>
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import supabase from '@/supabase';
+import { ref, computed } from 'vue';
 
 export default {
   setup() {
+    const store = useStore(); // ✅ Vuex store
     const router = useRouter();
 
     const goToClient = () => {

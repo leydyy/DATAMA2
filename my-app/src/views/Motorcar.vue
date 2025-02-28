@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import ClientForm from '@/components/Motorcar.vue';
+import Motorcar from '@/components/Motorcar.vue';
 
 export default {
   components: {

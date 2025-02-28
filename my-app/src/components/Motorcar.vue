@@ -1,94 +1,111 @@
 <template>
-    <section id="form-section">
-        <div class="form-container">
-          <h1>DRIVE WITH CONFIDENCE,<br>INSURE WITH US!</h1>
-          <form @submit.prevent="handleSubmit">
-            <h2>Motor Car Information</h2>
-            <div class="form-group" v-for="field in formFields" :key="field.id">
-              <label :for="field.id">{{ field.label }}</label>
-              <input :type="field.type" :id="field.id" v-model="formData[field.model]" required />
-            </div>
-            <button type="submit">Submit</button>
-          </form>
-          <div v-if="submissionMessage" class="submission-message">
-            {{ submissionMessage }}
-          </div>
+  <section id="form-section">
+    <div class="form-container">
+      <h1>DRIVE WITH CONFIDENCE,<br />INSURE WITH US!</h1>
+      <form @submit.prevent="handleSubmit">
+        <h2>Motor Car Information</h2>
+        <div class="form-group" v-for="field in formFields" :key="field.id">
+          <label :for="field.id">{{ field.label }}</label>
+          <input
+            :type="field.type"
+            :id="field.id"
+            v-model="formData[field.model]"
+            required
+          />
         </div>
-      </section>
+        <button type="submit">Submit</button>
+      </form>
+      <div v-if="submissionMessage" class="submission-message">
+        {{ submissionMessage }}
+      </div>
+    </div>
+  </section>
 </template>
 
 <script>
-import { supabase } from '../lib/supabaseClient';
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import supabase from "@/supabase";
 
 export default {
   data() {
     return {
       formData: {
-        year_model: '',
-        brand: '',
-        model: '',
-        engine_cc: '',
-        plate_num: '',
-        color: '',
-        seating_capacity: '',
-        mortgage: ''
+        year_model: "",
+        brand: "",
+        model: "",
+        engine_cc: "",
+        engine_num: "",
+        chassis_num: "",
+        plate_num: "",  // ✅ Added missing field
+        color: "",
+        seating_capacity: "",
+        mortgage: ""
       },
       formFields: [
-        { id: 'year_model', label: 'Year Model', type: 'text', model: 'year_model' },
-        { id: 'brand', label: 'Brand', type: 'text', model: 'brand' },
-        { id: 'model', label: 'Model', type: 'text', model: 'model' },
-        { id: 'engine_cc', label: 'Engine CC', type: 'text', model: 'engine_cc' },
-        { id: 'engine_num', label: 'Engine Number', type: 'text', model: 'engine_num' },
-        { id: 'chassis_num', label: 'Chassis Number', type: 'text', model: 'chassis_num' },
-        { id: 'color', label: 'Vehicle Color', type: 'text', model: 'color' },
-        { id: 'seating_capacity', label: 'Seating Capacity', type: 'text', model: 'seating_capacity' },
-        { id: 'mortgage', label: 'Mortgage', type: 'text', model: 'mortgage' }
+        { id: "year_model", label: "Year Model", type: "text", model: "year_model" },
+        { id: "brand", label: "Brand", type: "text", model: "brand" },
+        { id: "model", label: "Model", type: "text", model: "model" },
+        { id: "engine_cc", label: "Engine CC", type: "text", model: "engine_cc" },
+        { id: "engine_num", label: "Engine Number", type: "text", model: "engine_num" },
+        { id: "chassis_num", label: "Chassis Number", type: "text", model: "chassis_num" },
+        { id: "plate_num", label: "Plate Number", type: "text", model: "plate_num" },
+        { id: "color", label: "Vehicle Color", type: "text", model: "color" },
+        { id: "seating_capacity", label: "Seating Capacity", type: "text", model: "seating_capacity" },
+        { id: "mortgage", label: "Mortgage", type: "text", model: "mortgage" },
       ],
-      submissionMessage: '' // ✅ Ensure this is defined
+      submissionMessage: "",
     };
   },
 
-  
   methods: {
     async handleSubmit() {
-        // Check for empty fields
-        for (const key in this.formData) {
-            if (!this.formData[key].trim()) {
-                this.submissionMessage = '❌ Please fill out all fields before submitting.';
-                return;
-            }
-        }
+      console.log("Form Data Before Validation:", this.formData); // Debugging log
 
-        console.log('Form submitted:', this.formData);
+      // Get client_id from query params (assuming it's passed from the previous form)
+      const clientId = this.$route.query.motorcar_id;
+      
+      if (!clientId) {
+          console.error("❌ Missing client_id. Cannot insert data.");
+          this.submissionMessage = "❌ Error: Missing client ID.";
+          return;
+      }
 
-        const { data, error } = await supabase
-            .from('motorcar_motorcar_info')
-            .insert([this.formData]);
+      // Attach client_id to form data
+      const submissionData = { ...this.formData, client_id: clientId };
 
-        console.log('Supabase data:', data);
-        console.log('Supabase error:', error);
+      console.log("Submitting data:", submissionData);
 
-        if (error) {
-            this.submissionMessage = '❌ Failed to submit the form. Please try again.';
-        } else {
-            this.submissionMessage = '✅ Your information has been submitted successfully!';
-            // Reset form
-            this.formData = {
-                year_model: '',
-                brand: '',
-                model: '',
-                engine_cc: '',
-                plate_num: '',
-                color: '',
-                seating_capacity: '',
-                mortgage: ''
-            };
-        }
-    }
-  }
+      const { data, error } = await supabase
+          .from("motorcar_motorcar_info")  // ✅ Correct table name
+          .insert([submissionData]);
+
+      if (error) {
+          console.error("❌ Error inserting data:", error);
+          alert(`Submission Error: ${error.message}`);
+          this.submissionMessage = "❌ Failed to submit the form.";
+      } else {
+          console.log("✅ Data inserted successfully:", data);
+          this.submissionMessage = "✅ Your information has been submitted successfully!";
+          
+          // Reset form
+          this.formData = {
+              year_model: "",
+              brand: "",
+              model: "",
+              engine_cc: "",
+              engine_num: "",
+              chassis_num: "",
+              plate_num: "",
+              color: "",
+              seating_capacity: "",
+              mortgage: "",
+          };
+      }
+    },
+  },
 };
 </script>
-
 
 <style scoped>
 body {
@@ -98,7 +115,7 @@ body {
 }
 
 header {
-  background-image: url('https://wallpaperaccess.com/full/1125168.jpg');
+  background-image: url("https://wallpaperaccess.com/full/1125168.jpg");
   background-size: cover;
   background-position: center;
   color: white;
@@ -173,13 +190,14 @@ button[type="submit"] {
 }
 
 .submission-message {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 5px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
 }
-.submission-message{
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+
+.submission-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
 }
 </style>

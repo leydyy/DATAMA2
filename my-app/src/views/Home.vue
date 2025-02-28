@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Clients from '@/components/Home.vue';
+import Home from '@/components/Home.vue';
 
 export default {
   components: {

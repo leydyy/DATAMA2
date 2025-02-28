@@ -1,33 +1,34 @@
 <template>
-    <div>
-      <header>
-        <div class="header-content">
-          <h1>MOTOR CAR<br>INSURANCE</h1>
-          <button id="quote-button" @click="scrollToForm">REQUEST FOR A QUOTE</button>
-        </div>
-      </header>
-  
-      <section id="form-section">
-        <div class="form-container">
-          <h1>DRIVE WITH CONFIDENCE,<br>INSURE WITH US!</h1>
-          <form @submit.prevent="handleSubmit">
-            <h2>Personal Information</h2>
-            <div class="form-group" v-for="field in formFields" :key="field.id">
-              <label :for="field.id">{{ field.label }}</label>
-              <input :type="field.type" :id="field.id" v-model="formData[field.model]" required />
-            </div>
-            <button type="submit">Submit</button>
-          </form>
-          <div v-if="submissionMessage" class="submission-message">
-            {{ submissionMessage }}
+  <div>
+    <header>
+      <div class="header-content">
+        <h1>MOTOR CAR<br>INSURANCE</h1>
+        <button id="quote-button" @click="scrollToForm">REQUEST FOR A QUOTE</button>
+      </div>
+    </header>
+
+    <section id="form-section">
+      <div class="form-container">
+        <h1>DRIVE WITH CONFIDENCE,<br>INSURE WITH US!</h1>
+        <form @submit.prevent="handleSubmit">
+          <h2>Personal Information</h2>
+          <div class="form-group" v-for="field in formFields" :key="field.id">
+            <label :for="field.id">{{ field.label }}</label>
+            <input :type="field.type" :id="field.id" v-model="formData[field.model]" required />
           </div>
+          <button type="submit">Proceed</button>
+        </form>
+        <div v-if="submissionMessage" class="submission-message">
+          {{ submissionMessage }}
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
+  </div>
 </template>
-  
+
 <script>
-import { supabase } from '../lib/supabaseClient'; // Ensure the correct path
+import { useRouter } from 'vue-router';
+import supabase from '@/supabase';
 
 export default {
   data() {
@@ -46,7 +47,7 @@ export default {
         { id: 'phone', label: 'Phone Number', type: 'tel', model: 'phone' },
         { id: 'full_address', label: 'Full Address', type: 'text', model: 'full_address' }
       ],
-      submissionMessage: '' // ✅ Added submission message handling
+      submissionMessage: ''
     };
   },
   methods: {
@@ -58,39 +59,47 @@ export default {
     async handleSubmit() {
       // Check for empty fields
       for (const key in this.formData) {
-        if (!this.formData[key].trim()) {
-          this.submissionMessage = '❌ Please fill out all fields before submitting.';
+        if (!this.formData[key]?.trim()) {
+          this.submissionMessage = `❌ ${key.replace('_', ' ')} is required.`;
+          alert(`❌ ${key.replace('_', ' ')} is required.`);
           return;
         }
       }
 
-      console.log('Form submitted:', this.formData);
+      console.log('🚀 Submitting Data:', this.formData);
 
+      // Insert into motorcar_client and return the new ID
       const { data, error } = await supabase
         .from('motorcar_client')
-        .insert([this.formData]);
+        .insert([this.formData])
+        .select('id');
 
       if (error) {
-        console.error('Error inserting data:', error);
-        this.submissionMessage = '❌ Failed to submit the form. Please try again.';
-      } else {
-        console.log('Data inserted successfully:', data);
-        this.submissionMessage = '✅ Your information has been submitted successfully!';
-        // Reset form
-        this.formData = {
-          full_name: '',
-          occupation: '',
-          email: '',
-          phone: '',
-          full_address: ''
-        };
+        console.error('❌ Client Insert Error:', error.message);
+        alert(`❌ Submission Error: ${error.message}`);
+        this.submissionMessage = '❌ Submission failed. Please try again.';
+        return;
       }
+
+      if (!data || !data[0]?.id) {
+        console.error('❌ No ID returned from Supabase.');
+        this.submissionMessage = '❌ Submission failed: No ID returned.';
+        return;
+      }
+
+      const motorcarId = data[0].id;
+      console.log('✅ New Client ID:', motorcarId);
+
+      // Redirect to Motorcar.vue with motorcar_id in query params
+      this.submissionMessage = '✅ Your information has been submitted successfully!';
+      setTimeout(() => {
+        this.$router.push({ name: 'Motorcar', query: { motorcar_id: motorcarId } });
+      }, 1000);
     }
   }
 };
 </script>
 
-  
 <style scoped>
   body {
     font-family: sans-serif;
