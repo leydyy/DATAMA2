@@ -1,24 +1,15 @@
-// router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../components/Home.vue'; 
-import Motorcar from '../components/Motorcar.vue';
+import Home from '../components/Home.vue';  // Ensure the correct path
+import Clients from '../components/Clients.vue';
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home,
-  },
-  {
-    path: '/motorcar',
-    name: 'Motorcar',
-    component: Motorcar,
-  },
+  { path: '/', component: Home },  // Ensure this line is included
+  { path: '/clients', component: Clients }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes
 });
 
 export default router;

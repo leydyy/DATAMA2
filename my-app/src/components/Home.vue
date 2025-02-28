@@ -43,12 +43,10 @@
         <div class="col-lg-8">
           <h2>Services we offer</h2>
           <p class="lead">Protect your home and everything you love...</p>
-            <div>
-                <router-link to="/Motorcar">Motorcar</router-link>
-                <router-view></router-view>
-            </div>
+            <router-link to="/clients">
+              <button class="custom-button motorcar-btn">Motorcar Insurance</button>
+            </router-link>
           <a href="fire.html"><button class="custom-button fire-btn">Fire Insurance</button></a>
-          <a href="motorcar.html"><button class="custom-button motorcar-btn">Motorcar Insurance</button></a>
         </div>
       </div>
     </section>
@@ -60,7 +58,19 @@
 </template>
 
 <script>
+import { useRouter } from 'vue-router';
+
 export default {
+  setup() {
+    const router = useRouter();
+
+    const goToClient = () => {
+    console.log("Navigating to /clients"); // Debugging step
+    router.push('/clients');
+};
+
+    return { goToClient };
+  },
   data() {
     return {
       navOpen: false
@@ -73,6 +83,8 @@ export default {
   }
 };
 </script>
+
+
 
 <style>
 @charset "UTF-8";
