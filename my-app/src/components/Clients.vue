@@ -24,67 +24,74 @@
         </div>
       </section>
     </div>
-  </template>
+</template>
   
-  <script>
-  import { supabase } from '../lib/supabaseClient'; // Ensure the correct path
-  
-  export default {
-    data() {
-      return {
-        formData: {
-          first_name: '',
-          last_name: '',
-          email: '',
-          phone: '',
-          address: ''
-        },
-        formFields: [
-          { id: 'full_name', label: 'Full Name', type: 'text', model: 'full_name' },
-          { id: 'occupation', label: 'Occupation', type: 'text', model: 'occupation' },
-          { id: 'email', label: 'Email', type: 'email', model: 'email' },
-          { id: 'phone', label: 'Phone Number', type: 'tel', model: 'phone' },
-          { id: 'full_address', label: 'Full Address', type: 'text', model: 'full_address' }
-        ]
-      };
-    },
-    methods: {
-      scrollToForm() {
-        const formSection = document.getElementById('form-section');
-        formSection.scrollIntoView({ behavior: 'smooth' });
-      },
-  
-      async handleSubmit() {
-    console.log('Form submitted:', this.formData);
+<script>
+import { supabase } from '../lib/supabaseClient'; // Ensure the correct path
 
-    const { data, error } = await supabase
-      .from('motorcar_client')
-      .insert([this.formData]);
-  
-    if (error) {
-      console.error('Error inserting data:', error);
-      alert('Failed to submit the form. Please try again.');
-    } else {
-      console.log('Data inserted successfully:', data);
-      alert('Your information has been submitted successfully!');
-      // Reset form
-      this.formData = {
+export default {
+  data() {
+    return {
+      formData: {
         full_name: '',
         occupation: '',
         email: '',
         phone: '',
         full_address: ''
-      };
+      },
+      formFields: [
+        { id: 'full_name', label: 'Full Name', type: 'text', model: 'full_name' },
+        { id: 'occupation', label: 'Occupation', type: 'text', model: 'occupation' },
+        { id: 'email', label: 'Email', type: 'email', model: 'email' },
+        { id: 'phone', label: 'Phone Number', type: 'tel', model: 'phone' },
+        { id: 'full_address', label: 'Full Address', type: 'text', model: 'full_address' }
+      ],
+      submissionMessage: '' // ✅ Added submission message handling
+    };
+  },
+  methods: {
+    scrollToForm() {
+      const formSection = document.getElementById('form-section');
+      formSection.scrollIntoView({ behavior: 'smooth' });
+    },
+
+    async handleSubmit() {
+      // Check for empty fields
+      for (const key in this.formData) {
+        if (!this.formData[key].trim()) {
+          this.submissionMessage = '❌ Please fill out all fields before submitting.';
+          return;
+        }
+      }
+
+      console.log('Form submitted:', this.formData);
+
+      const { data, error } = await supabase
+        .from('motorcar_client')
+        .insert([this.formData]);
+
+      if (error) {
+        console.error('Error inserting data:', error);
+        this.submissionMessage = '❌ Failed to submit the form. Please try again.';
+      } else {
+        console.log('Data inserted successfully:', data);
+        this.submissionMessage = '✅ Your information has been submitted successfully!';
+        // Reset form
+        this.formData = {
+          full_name: '',
+          occupation: '',
+          email: '',
+          phone: '',
+          full_address: ''
+        };
+      }
     }
   }
+};
+</script>
+
   
-  
-    }
-  };
-  </script>
-  
-  
-  <style scoped>
+<style scoped>
   body {
     font-family: sans-serif;
     margin: 0;

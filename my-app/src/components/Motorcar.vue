@@ -27,48 +27,63 @@ export default {
         year_model: '',
         brand: '',
         model: '',
-        variant: '',
+        engine_cc: '',
         plate_num: '',
-        vehicle_value: ''
+        color: '',
+        seating_capacity: '',
+        mortgage: ''
       },
       formFields: [
         { id: 'year_model', label: 'Year Model', type: 'text', model: 'year_model' },
         { id: 'brand', label: 'Brand', type: 'text', model: 'brand' },
         { id: 'model', label: 'Model', type: 'text', model: 'model' },
-        { id: 'variant', label: 'Variant', type: 'text', model: 'variant' },
-        { id: 'plate_num', label: 'Plate Number', type: 'text', model: 'plate_num' },
-        { id: 'vehicle_value', label: 'Vehicle Value', type: 'text', model: 'vehicle_value' }
+        { id: 'engine_cc', label: 'Engine CC', type: 'text', model: 'engine_cc' },
+        { id: 'engine_num', label: 'Engine Number', type: 'text', model: 'engine_num' },
+        { id: 'chassis_num', label: 'Chassis Number', type: 'text', model: 'chassis_num' },
+        { id: 'color', label: 'Vehicle Color', type: 'text', model: 'color' },
+        { id: 'seating_capacity', label: 'Seating Capacity', type: 'text', model: 'seating_capacity' },
+        { id: 'mortgage', label: 'Mortgage', type: 'text', model: 'mortgage' }
       ],
       submissionMessage: '' // ✅ Ensure this is defined
     };
   },
 
-  // ✅ Wrap handleSubmit inside methods
+  
   methods: {
     async handleSubmit() {
-      console.log('Form submitted:', this.formData); // Check if this logs
+        // Check for empty fields
+        for (const key in this.formData) {
+            if (!this.formData[key].trim()) {
+                this.submissionMessage = '❌ Please fill out all fields before submitting.';
+                return;
+            }
+        }
 
-      const { data, error } = await supabase
-        .from('motorcar_motorcar_info')
-        .insert([this.formData]);
+        console.log('Form submitted:', this.formData);
 
-      console.log('Supabase data:', data);
-      console.log('Supabase error:', error);
+        const { data, error } = await supabase
+            .from('motorcar_motorcar_info')
+            .insert([this.formData]);
 
-      if (error) {
-        this.submissionMessage = '❌ Failed to submit the form. Please try again.';
-      } else {
-        this.submissionMessage = '✅ Your information has been submitted successfully!';
-        // Reset form
-        this.formData = {
-          year_model: '',
-          brand: '',
-          model: '',
-          variant: '',
-          plate_num: '',
-          vehicle_value: ''
-        };
-      }
+        console.log('Supabase data:', data);
+        console.log('Supabase error:', error);
+
+        if (error) {
+            this.submissionMessage = '❌ Failed to submit the form. Please try again.';
+        } else {
+            this.submissionMessage = '✅ Your information has been submitted successfully!';
+            // Reset form
+            this.formData = {
+                year_model: '',
+                brand: '',
+                model: '',
+                engine_cc: '',
+                plate_num: '',
+                color: '',
+                seating_capacity: '',
+                mortgage: ''
+            };
+        }
     }
   }
 };
