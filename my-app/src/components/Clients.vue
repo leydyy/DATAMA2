@@ -40,11 +40,11 @@
           address: ''
         },
         formFields: [
-          { id: 'first_name', label: 'First Name', type: 'text', model: 'first_name' },
-          { id: 'last_name', label: 'Last Name', type: 'text', model: 'last_name' },
+          { id: 'full_name', label: 'Full Name', type: 'text', model: 'full_name' },
+          { id: 'occupation', label: 'Occupation', type: 'text', model: 'occupation' },
           { id: 'email', label: 'Email', type: 'email', model: 'email' },
           { id: 'phone', label: 'Phone Number', type: 'tel', model: 'phone' },
-          { id: 'address', label: 'Address', type: 'text', model: 'address' }
+          { id: 'full_address', label: 'Full Address', type: 'text', model: 'full_address' }
         ]
       };
     },
@@ -56,8 +56,7 @@
   
       async handleSubmit() {
     console.log('Form submitted:', this.formData);
-  
-    // 🔥 Insert data directly without requiring authentication
+
     const { data, error } = await supabase
       .from('motorcar_client')
       .insert([this.formData]);
@@ -70,11 +69,11 @@
       alert('Your information has been submitted successfully!');
       // Reset form
       this.formData = {
-        first_name: '',
-        last_name: '',
+        full_name: '',
+        occupation: '',
         email: '',
         phone: '',
-        address: ''
+        full_address: ''
       };
     }
   }
