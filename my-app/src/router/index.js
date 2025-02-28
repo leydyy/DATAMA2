@@ -1,15 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../components/Home.vue';  // Ensure the correct path
-import Clients from '../components/Clients.vue';
+import Home from '@/views/Home.vue';
+import Clients from '@/views/Clients.vue';
+import Motorcar from '@/views/Motorcar.vue';
 
 const routes = [
-  { path: '/', component: Home },  // Ensure this line is included
-  { path: '/clients', component: Clients }
+  { path: '/', component: Home },
+  { path: '/clients', component: Clients },
+  { path: '/motorcar', component: Motorcar },
+
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 });
 
 export default router;
