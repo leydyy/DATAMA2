@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import supabase from "@/supabase";
 
 export default {
@@ -80,6 +80,11 @@ export default {
     } else {
       console.log("✅ Received client_id in Motorcar.vue:", this.clientId);
     }
+  },
+
+  setup() {
+    const router = useRouter();
+    return { router };
   },
 
   methods: {
@@ -149,6 +154,7 @@ export default {
         console.log("✅ Data inserted successfully:", data);
         this.submissionMessage = "✅ Your information has been submitted successfully!";
 
+        // Reset form
         this.formData = {
           year_model: "",
           brand: "",
@@ -161,11 +167,17 @@ export default {
           seating_capacity: "",
           mortgage: ""
         };
+
+        // Redirect to Home.vue after a short delay
+        setTimeout(() => {
+          this.router.push("/");
+        }, 2000); // 2-second delay before redirect
       }
     }
   }
 };
 </script>
+
 
 <style scoped>
 body {
